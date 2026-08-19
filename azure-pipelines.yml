@@ -13,14 +13,20 @@ steps:
     jdkArchitectureOption: 'x64'
     jdkSourceOption: 'PreInstalled'
 
-- script: |
-    echo JAVA_HOME=%JAVA_HOME%
+- powershell: |
+    Write-Host "JAVA_HOME = $env:JAVA_HOME"
+    Write-Host "Java version:"
     java -version
+
+    Write-Host "Maven version:"
     mvn -version
-  displayName: 'Check Java and Maven'
+
+    Write-Host "Java executable:"
+    where.exe java
+  displayName: 'Verify Java 17 and Maven'
 
 - task: Maven@4
-  displayName: 'Run Selenium TestNG Tests'
+  displayName: 'Build and Run TestNG'
   inputs:
     mavenPomFile: 'pom.xml'
     goals: 'clean test'
