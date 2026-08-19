@@ -14,27 +14,19 @@ steps:
     jdkSourceOption: 'PreInstalled'
 
 - powershell: |
-    Write-Host "===== JAVA_HOME ====="
-    Write-Host $env:JAVA_HOME
-
     Write-Host "===== JAVA VERSION ====="
     java -version
 
     Write-Host "===== JAVAC VERSION ====="
     javac -version
 
-    Write-Host "===== JAVA LOCATION ====="
-    where.exe java
+    Write-Host "===== JAVA HOME ====="
+    Write-Host $env:JAVA_HOME
 
-    Write-Host "===== JAVAC LOCATION ====="
-    where.exe javac
-  displayName: 'Verify Java 17'
-
-- powershell: |
     Write-Host "===== MAVEN VERSION ====="
     mvn -version
-  displayName: 'Verify Maven'
+  displayName: 'Verify Java and Maven'
 
 - powershell: |
-    mvn clean install
-  displayName: 'Build and Run Tests'
+    mvn clean test
+  displayName: 'Run Selenium TestNG Tests'
