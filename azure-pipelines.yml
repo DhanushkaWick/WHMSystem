@@ -6,45 +6,21 @@ pool:
 
 steps:
 
-- powershell: |
-    Write-Host "===== FIND INSTALLED JDKs ====="
-
-    Get-ChildItem "C:\hostedtoolcache\windows\Java" -Directory -Recurse |
-      Where-Object { $_.FullName -match "jdk.*17.*x64" } |
-      Select-Object -ExpandProperty FullName
-
-    Write-Host "===== FIND JAVA.EXE ====="
-
-    Get-ChildItem "C:\hostedtoolcache\windows\Java" -Filter java.exe -Recurse |
-      Select-Object -ExpandProperty FullName
-  displayName: 'Find Java installations'
-
+- task: JavaToolInstaller@0
+  displayName: 'Set Java 17'
+  inputs:
+    versionSpec: '17'
+    jdkArchitectureOption: 'x64'
+    jdkSourceOption: 'PreInstalled'
 
 - powershell: |
-    $java17 = Get-ChildItem "C:\hostedtoolcache\windows\Java" -Directory -Recurse |
-      Where-Object { $_.FullName -match "jdk.*17.*x64" } |
-      Select-Object -First 1
-
-    if ($null -eq $java17) {
-        Write-Error "Java 17 was not found on the agent."
-        exit 1
-    }
-
-    Write-Host "Java 17 found at:"
-    Write-Host $java17.FullName
-
-    $env:JAVA_HOME = $java17.FullName
-
-    # Put Java 17 FIRST in PATH
-    $env:PATH = "$($java17.FullName)\bin;$env:PATH"
-
     Write-Host "===== JAVA_HOME ====="
     Write-Host $env:JAVA_HOME
 
-    Write-Host "===== JAVA ====="
+    Write-Host "===== JAVA VERSION ====="
     java -version
 
-    Write-Host "===== JAVAC ====="
+    Write-Host "===== JAVAC VERSION ====="
     javac -version
 
     Write-Host "===== JAVA LOCATION ====="
@@ -52,27 +28,13 @@ steps:
 
     Write-Host "===== JAVAC LOCATION ====="
     where.exe javac
-
-    Write-Host "===== MAVEN ====="
-    mvn -version
-
-    Write-Host "===== MAVEN COMPILER VERSION ====="
-    mvn compiler:help -Ddetail
-  displayName: 'Force Maven to Java 17'
-
+  displayName: 'Verify Java 17'
 
 - powershell: |
-    $java17 = Get-ChildItem "C:\hostedtoolcache\windows\Java" -Directory -Recurse |
-      Where-Object { $_.FullName -match "jdk.*17.*x64" } |
-      Select-Object -First 1
-
-    $env:JAVA_HOME = $java17.FullName
-    $env:PATH = "$($java17.FullName)\bin;$env:PATH"
-
-    Write-Host "Running Maven with:"
-    java -version
-    javac -version
+    Write-Host "===== MAVEN VERSION ====="
     mvn -version
+  displayName: 'Verify Maven'
 
-    mvn clean test
-  displayName: 'Build and Run Selenium TestNG'
+- powershell: |
+    mvn clean install
+  displayName: 'Build and Run Tests'
