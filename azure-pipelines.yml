@@ -1,0 +1,28 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'windows-latest'
+
+steps:
+
+- task: JavaToolInstaller@0
+  displayName: 'Set Java 17'
+  inputs:
+    versionSpec: '17'
+    jdkArchitectureOption: 'x64'
+    jdkSourceOption: 'PreInstalled'
+
+- script: |
+    echo JAVA_HOME=%JAVA_HOME%
+    java -version
+    mvn -version
+  displayName: 'Check Java and Maven'
+
+- task: Maven@4
+  displayName: 'Run Selenium TestNG Tests'
+  inputs:
+    mavenPomFile: 'pom.xml'
+    goals: 'clean test'
+    publishJUnitResults: true
+    testResultsFiles: '**/surefire-reports/TEST-*.xml'
