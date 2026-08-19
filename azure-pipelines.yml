@@ -6,53 +6,26 @@ pool:
 
 steps:
 
-- task: JavaToolInstaller@0
-  displayName: 'Install Java 17'
-  inputs:
-    versionSpec: '17'
-    jdkArchitectureOption: 'x64'
-    jdkSourceOption: 'PreInstalled'
-
 - powershell: |
-    Write-Host "===== FIND JAVA 17 ====="
+    Write-Host "===== JAVA ENVIRONMENT ====="
 
-    $java17 = Get-ChildItem "C:\hostedtoolcache\windows\Java" -Directory -Recurse |
-      Where-Object { $_.FullName -match "17" } |
-      Select-Object -First 1
-
-    if (-not $java17) {
-        Write-Error "Java 17 not found"
-        exit 1
-    }
-
-    Write-Host "Java 17 found at:"
-    Write-Host $java17.FullName
-
-    Write-Host "##vso[task.setvariable variable=JAVA_HOME]$($java17.FullName)"
-
-    $env:JAVA_HOME = $java17.FullName
-    $env:PATH = "$($java17.FullName)\bin;$env:PATH"
-
-    Write-Host "===== JAVA HOME ====="
+    Write-Host "JAVA_HOME:"
     Write-Host $env:JAVA_HOME
 
-    Write-Host "===== JAVA ====="
-    & "$env:JAVA_HOME\bin\java.exe" -version
+    Write-Host "JAVA:"
+    where.exe java
+    java -version
 
-    Write-Host "===== JAVAC ====="
-    & "$env:JAVA_HOME\bin\javac.exe" -version
-
-    Write-Host "===== MAVEN ====="
-    mvn -version
-  displayName: 'Force Maven to Java 17'
-
-- powershell: |
-    Write-Host "===== JAVA HOME ====="
-    Write-Host $env:JAVA_HOME
+    Write-Host "JAVAC:"
+    where.exe javac
+    javac -version
 
     Write-Host "===== MAVEN ====="
+    where.exe mvn
     mvn -version
 
-    Write-Host "===== RUN TESTS ====="
-    mvn clean test
-  displayName: 'Run Selenium TestNG Tests'
+    Write-Host "===== ALL JAVA INSTALLATIONS ====="
+    Get-ChildItem "C:\hostedtoolcache\windows\Java" -Directory -Recurse |
+      Select-Object -ExpandProperty FullName
+
+  displayName: 'DIAGNOSE JAVA'
