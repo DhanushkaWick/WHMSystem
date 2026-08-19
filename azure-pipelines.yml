@@ -15,36 +15,49 @@ steps:
 
 - powershell: |
     Write-Host "======================================"
-    Write-Host "JAVA TEST STARTED"
+    Write-Host "JAVA ENVIRONMENT"
     Write-Host "======================================"
 
     Write-Host "JAVA_HOME:"
     Write-Host $env:JAVA_HOME
 
+    Write-Host ""
     Write-Host "JAVA VERSION:"
     java -version
 
+    Write-Host ""
     Write-Host "JAVAC VERSION:"
     javac -version
 
+    Write-Host ""
     Write-Host "JAVA LOCATION:"
     where.exe java
 
+    Write-Host ""
     Write-Host "JAVAC LOCATION:"
     where.exe javac
 
+    Write-Host ""
     Write-Host "MAVEN LOCATION:"
     where.exe mvn
 
+    Write-Host ""
     Write-Host "MAVEN VERSION:"
     mvn -version
 
     Write-Host "======================================"
-    Write-Host "JAVA TEST FINISHED"
-    Write-Host "======================================"
-  displayName: 'JAVA TEST'
+  displayName: 'Verify Java and Maven'
 
 - powershell: |
-    Write-Host "===== BUILD AND TEST ====="
+    Write-Host "======================================"
+    Write-Host "MAVEN BUILD"
+    Write-Host "======================================"
+
+    mvn -version
+
     mvn clean test
+
+    Write-Host "======================================"
+    Write-Host "BUILD FINISHED"
+    Write-Host "======================================"
   displayName: 'Run Selenium TestNG Tests'
