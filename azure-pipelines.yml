@@ -14,26 +14,45 @@ steps:
     jdkSourceOption: 'PreInstalled'
 
 - powershell: |
+    Write-Host "===== FIND JAVA 17 ====="
+
+    $java17 = Get-ChildItem "C:\hostedtoolcache\windows\Java" -Directory -Recurse |
+      Where-Object { $_.FullName -match "17" } |
+      Select-Object -First 1
+
+    if (-not $java17) {
+        Write-Error "Java 17 not found"
+        exit 1
+    }
+
+    Write-Host "Java 17 found at:"
+    Write-Host $java17.FullName
+
+    Write-Host "##vso[task.setvariable variable=JAVA_HOME]$($java17.FullName)"
+
+    $env:JAVA_HOME = $java17.FullName
+    $env:PATH = "$($java17.FullName)\bin;$env:PATH"
+
     Write-Host "===== JAVA HOME ====="
     Write-Host $env:JAVA_HOME
 
     Write-Host "===== JAVA ====="
-    java -version
+    & "$env:JAVA_HOME\bin\java.exe" -version
 
     Write-Host "===== JAVAC ====="
-    javac -version
-
-    Write-Host "===== JAVA LOCATION ====="
-    where.exe java
-
-    Write-Host "===== JAVAC LOCATION ====="
-    where.exe javac
+    & "$env:JAVA_HOME\bin\javac.exe" -version
 
     Write-Host "===== MAVEN ====="
     mvn -version
-  displayName: 'Check Java 17 and Maven'
+  displayName: 'Force Maven to Java 17'
 
 - powershell: |
-    Write-Host "===== BUILD ====="
+    Write-Host "===== JAVA HOME ====="
+    Write-Host $env:JAVA_HOME
+
+    Write-Host "===== MAVEN ====="
+    mvn -version
+
+    Write-Host "===== RUN TESTS ====="
     mvn clean test
   displayName: 'Run Selenium TestNG Tests'
