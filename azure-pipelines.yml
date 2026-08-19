@@ -13,16 +13,38 @@ steps:
     jdkArchitectureOption: 'x64'
     jdkSourceOption: 'PreInstalled'
 
-- script: |
-    echo JAVA_HOME=%JAVA_HOME%
-    java -version
-    mvn -version
-  displayName: 'Check Java and Maven'
+- powershell: |
+    Write-Host "======================================"
+    Write-Host "JAVA TEST STARTED"
+    Write-Host "======================================"
 
-- task: Maven@4
+    Write-Host "JAVA_HOME:"
+    Write-Host $env:JAVA_HOME
+
+    Write-Host "JAVA VERSION:"
+    java -version
+
+    Write-Host "JAVAC VERSION:"
+    javac -version
+
+    Write-Host "JAVA LOCATION:"
+    where.exe java
+
+    Write-Host "JAVAC LOCATION:"
+    where.exe javac
+
+    Write-Host "MAVEN LOCATION:"
+    where.exe mvn
+
+    Write-Host "MAVEN VERSION:"
+    mvn -version
+
+    Write-Host "======================================"
+    Write-Host "JAVA TEST FINISHED"
+    Write-Host "======================================"
+  displayName: 'JAVA TEST'
+
+- powershell: |
+    Write-Host "===== BUILD AND TEST ====="
+    mvn clean test
   displayName: 'Run Selenium TestNG Tests'
-  inputs:
-    mavenPomFile: 'pom.xml'
-    goals: 'clean test'
-    publishJUnitResults: true
-    testResultsFiles: '**/surefire-reports/TEST-*.xml'
