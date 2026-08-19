@@ -109,6 +109,10 @@ steps:
 
     Write-Host "=========================================="
   displayName: 'Verify Maven Uses Java 17'
+  - task: PublishTestResults@2
+  inputs:
+    testResultsFormat: 'JUnit'
+    testResultsFiles: '**/target/surefire-reports/TEST-*.xml'
 
 - powershell: |
     Write-Host "=========================================="
@@ -116,5 +120,6 @@ steps:
     Write-Host "=========================================="
 
     mvn clean compile
+    
 
   displayName: 'Compile Project'
