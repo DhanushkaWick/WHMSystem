@@ -7,20 +7,20 @@ pool:
 steps:
 
 - task: JavaToolInstaller@0
-  displayName: 'Set Java 17'
+  displayName: 'Install Java 17'
   inputs:
     versionSpec: '17'
     jdkArchitectureOption: 'x64'
     jdkSourceOption: 'PreInstalled'
 
 - powershell: |
-    Write-Host "===== JAVA_HOME ====="
+    Write-Host "===== JAVA HOME ====="
     Write-Host $env:JAVA_HOME
 
-    Write-Host "===== JAVA VERSION ====="
+    Write-Host "===== JAVA ====="
     java -version
 
-    Write-Host "===== JAVAC VERSION ====="
+    Write-Host "===== JAVAC ====="
     javac -version
 
     Write-Host "===== JAVA LOCATION ====="
@@ -29,17 +29,11 @@ steps:
     Write-Host "===== JAVAC LOCATION ====="
     where.exe javac
 
-    Write-Host "===== MAVEN VERSION ====="
+    Write-Host "===== MAVEN ====="
     mvn -version
-  displayName: 'Verify Java and Maven'
+  displayName: 'Check Java 17 and Maven'
 
 - powershell: |
-    $env:JAVA_HOME = $env:JAVA_HOME
-    $env:PATH = "$env:JAVA_HOME\bin;$env:PATH"
-
-    java -version
-    javac -version
-    mvn -version
-
-    mvn clean install
-  displayName: 'Build and Run Tests'
+    Write-Host "===== BUILD ====="
+    mvn clean test
+  displayName: 'Run Selenium TestNG Tests'
