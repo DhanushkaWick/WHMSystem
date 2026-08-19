@@ -7,30 +7,34 @@ pool:
 steps:
 
 - task: JavaToolInstaller@0
-  displayName: 'Use Java 17'
+  displayName: 'Set Java 17'
   inputs:
     versionSpec: '17'
     jdkArchitectureOption: 'x64'
     jdkSourceOption: 'PreInstalled'
 
 - powershell: |
-    Write-Host "===== JAVA VERSION ====="
-    java -version
-
     Write-Host "===== JAVA_HOME ====="
     Write-Host $env:JAVA_HOME
 
-    Write-Host "===== MAVEN VERSION ====="
-    mvn -version
+    Write-Host "===== JAVA VERSION ====="
+    java -version
+
+    Write-Host "===== JAVAC VERSION ====="
+    javac -version
+
+    Write-Host "===== JAVA LOCATION ====="
+    where.exe java
+
+    Write-Host "===== JAVAC LOCATION ====="
+    where.exe javac
   displayName: 'Verify Java 17'
 
-- task: Maven@4
+- powershell: |
+    Write-Host "===== MAVEN VERSION ====="
+    mvn -version
+  displayName: 'Verify Maven'
+
+- powershell: |
+    mvn clean install
   displayName: 'Build and Run Tests'
-  inputs:
-    mavenPomFile: 'pom.xml'
-    goals: 'clean install'
-    publishJUnitResults: true
-    testResultsFiles: '**/surefire-reports/TEST-*.xml'
-    javaHomeOption: 'JDKVersion'
-    jdkVersionOption: '1.17'
-    mavenVersionOption: 'Default'
