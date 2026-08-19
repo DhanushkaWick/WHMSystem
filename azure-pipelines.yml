@@ -1,39 +1,36 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'windows-latest'
+
 steps:
 
 - task: JavaToolInstaller@0
-  displayName: 'Set Java 17'
+  displayName: 'Use Java 17'
   inputs:
     versionSpec: '17'
     jdkArchitectureOption: 'x64'
     jdkSourceOption: 'PreInstalled'
 
 - powershell: |
+    Write-Host "===== JAVA VERSION ====="
+    java -version
+
     Write-Host "===== JAVA_HOME ====="
     Write-Host $env:JAVA_HOME
 
-    Write-Host "===== JAVA ====="
-    java -version
-
-    Write-Host "===== JAVAC ====="
-    javac -version
-
-    Write-Host "===== JAVA PATH ====="
-    where.exe java
-
-    Write-Host "===== JAVAC PATH ====="
-    where.exe javac
-
-    Write-Host "===== MAVEN ====="
+    Write-Host "===== MAVEN VERSION ====="
     mvn -version
-
-    Write-Host "===== MAVEN COMPILER ====="
-    mvn help:evaluate -Dexpression=maven.compiler.release -q -DforceStdout
-  displayName: 'Diagnose Java and Maven'
+  displayName: 'Verify Java 17'
 
 - task: Maven@4
-  displayName: 'Run Maven Tests'
+  displayName: 'Build and Run Tests'
   inputs:
     mavenPomFile: 'pom.xml'
-    goals: 'clean test'
+    goals: 'clean install'
     publishJUnitResults: true
     testResultsFiles: '**/surefire-reports/TEST-*.xml'
+    javaHomeOption: 'JDKVersion'
+    jdkVersionOption: '1.17'
+    mavenVersionOption: 'Default'
