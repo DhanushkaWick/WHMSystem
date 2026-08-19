@@ -28,13 +28,18 @@ steps:
 
     Write-Host "===== JAVAC LOCATION ====="
     where.exe javac
-  displayName: 'Verify Java 17'
 
-- powershell: |
     Write-Host "===== MAVEN VERSION ====="
     mvn -version
-  displayName: 'Verify Maven'
+  displayName: 'Verify Java and Maven'
 
 - powershell: |
+    $env:JAVA_HOME = $env:JAVA_HOME
+    $env:PATH = "$env:JAVA_HOME\bin;$env:PATH"
+
+    java -version
+    javac -version
+    mvn -version
+
     mvn clean install
   displayName: 'Build and Run Tests'
