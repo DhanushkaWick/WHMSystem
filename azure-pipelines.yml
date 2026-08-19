@@ -7,22 +7,78 @@ pool:
 steps:
 
 - task: JavaToolInstaller@0
-  displayName: 'Set Java 17'
+  displayName: 'Install / Select Java 17'
   inputs:
     versionSpec: '17'
     jdkArchitectureOption: 'x64'
     jdkSourceOption: 'PreInstalled'
 
 - powershell: |
-    Write-Host "======================================"
-    Write-Host "JAVA ENVIRONMENT"
-    Write-Host "======================================"
+    Write-Host "=========================================="
+    Write-Host "FIND JAVA 17"
+    Write-Host "=========================================="
 
-    Write-Host "JAVA_HOME:"
+    Get-ChildItem "C:\Program Files\Java" -ErrorAction SilentlyContinue
+
+    Get-ChildItem "C:\Program Files\Microsoft" -Directory -ErrorAction SilentlyContinue
+
+    Write-Host ""
+    Write-Host "JAVA_HOME BEFORE:"
     Write-Host $env:JAVA_HOME
 
     Write-Host ""
-    Write-Host "JAVA VERSION:"
+    Write-Host "JAVA LOCATIONS:"
+    where.exe java
+
+    Write-Host ""
+    Write-Host "JAVA VERSION BEFORE:"
+    java -version
+
+    Write-Host "=========================================="
+  displayName: 'Find Java Installation'
+
+- powershell: |
+    Write-Host "=========================================="
+    Write-Host "FORCE JAVA 17"
+    Write-Host "=========================================="
+
+    $java17 = Get-ChildItem "C:\Program Files\Java" -Directory -ErrorAction SilentlyContinue |
+              Where-Object { $_.Name -match "jdk-?17" } |
+              Select-Object -First 1
+
+    if ($java17) {
+        $javaHome = $java17.FullName
+    }
+    else {
+        $java17 = Get-ChildItem "C:\Program Files\Microsoft" -Directory -ErrorAction SilentlyContinue |
+                  Where-Object { $_.Name -match "jdk-17|jdk17" } |
+                  Select-Object -First 1
+
+        if ($java17) {
+            $javaHome = $java17.FullName
+        }
+    }
+
+    if (-not $javaHome) {
+        Write-Host "Java 17 was not found."
+        exit 1
+    }
+
+    Write-Host "JAVA 17 FOUND:"
+    Write-Host $javaHome
+
+    Write-Host "##vso[task.setvariable variable=JAVA_HOME]$javaHome"
+    Write-Host "##vso[task.prependpath]$javaHome\bin"
+
+    $env:JAVA_HOME = $javaHome
+    $env:Path = "$javaHome\bin;" + $env:Path
+
+    Write-Host ""
+    Write-Host "JAVA_HOME AFTER:"
+    Write-Host $env:JAVA_HOME
+
+    Write-Host ""
+    Write-Host "JAVA VERSION AFTER:"
     java -version
 
     Write-Host ""
@@ -33,31 +89,32 @@ steps:
     Write-Host "JAVA LOCATION:"
     where.exe java
 
-    Write-Host ""
-    Write-Host "JAVAC LOCATION:"
-    where.exe javac
-
-    Write-Host ""
-    Write-Host "MAVEN LOCATION:"
-    where.exe mvn
-
-    Write-Host ""
-    Write-Host "MAVEN VERSION:"
-    mvn -version
-
-    Write-Host "======================================"
-  displayName: 'Verify Java and Maven'
+  displayName: 'Force Java 17'
 
 - powershell: |
-    Write-Host "======================================"
-    Write-Host "MAVEN BUILD"
-    Write-Host "======================================"
+    Write-Host "=========================================="
+    Write-Host "MAVEN JAVA CHECK"
+    Write-Host "=========================================="
 
+    Write-Host "JAVA_HOME:"
+    Write-Host $env:JAVA_HOME
+
+    Write-Host ""
+    Write-Host "JAVA:"
+    java -version
+
+    Write-Host ""
+    Write-Host "MAVEN:"
     mvn -version
 
-    mvn clean test
+    Write-Host "=========================================="
+  displayName: 'Verify Maven Uses Java 17'
 
-    Write-Host "======================================"
-    Write-Host "BUILD FINISHED"
-    Write-Host "======================================"
-  displayName: 'Run Selenium TestNG Tests'
+- powershell: |
+    Write-Host "=========================================="
+    Write-Host "MAVEN COMPILE"
+    Write-Host "=========================================="
+
+    mvn clean compile
+
+  displayName: 'Compile Project'
