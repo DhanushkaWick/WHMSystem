@@ -1,0 +1,36 @@
+trigger:
+- master
+
+pool:
+  vmImage: 'windows-latest'
+
+steps:
+
+# Check Java and Maven versions
+- script: |
+    echo JAVA_HOME=%JAVA_HOME%
+    java -version
+    mvn -version
+  displayName: 'Check Java and Maven Version'
+
+
+# Use Java 17
+- task: JavaToolInstaller@0
+  displayName: 'Configure Java 17'
+  inputs:
+    versionSpec: '17'
+    jdkArchitectureOption: 'x64'
+    jdkSourceOption: 'PreInstalled'
+
+
+# Build and run TestNG tests
+- task: Maven@4
+  displayName: 'Build and Run Selenium Tests'
+  inputs:
+    mavenPomFile: 'pom.xml'
+    goals: 'clean test'
+    publishJUnitResults: true
+    testResultsFiles: '**/target/surefire-reports/TEST-*.xml'
+    javaHomeOption: 'JDKVersion'
+    jdkVersionOption: '1.17'
+    mavenVersionOption: 'Default'
