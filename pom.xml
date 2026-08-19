@@ -108,7 +108,7 @@
 
                     <!-- TestNG suite -->
                     <suiteXmlFiles>
-                        <suiteXmlFile>testng.xml</suiteXmlFile>
+                        <suiteXmlFile>testWHM.xml</suiteXmlFile>
                     </suiteXmlFiles>
 
                     <!-- Allure -->
