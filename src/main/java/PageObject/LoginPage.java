@@ -8,16 +8,13 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-import javax.xml.xpath.XPath;
 import java.time.Duration;
 
 public class LoginPage extends AbstractComponent {
-    WebDriver driver;
 
     public LoginPage(WebDriver driver) {
         super(driver);
         PageFactory.initElements(driver, this);
-
     }
 
     @FindBy(xpath = "//input[@id='email']")
