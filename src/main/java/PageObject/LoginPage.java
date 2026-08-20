@@ -1,7 +1,6 @@
 package PageObject;
 
 import AbstractComponent.AbstractComponent;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -32,10 +31,9 @@ public class LoginPage extends AbstractComponent {
     WebElement clearSession_ele;
     @FindBy(xpath="//button[.//span[normalize-space()='Cancel']]")
     WebElement cancelButton_ele;
-//    @FindBy(linkText = "Dashboard")
-//    WebElement dashboardLink_ele;
-@FindBy(xpath = "//a[@mat-list-item][.//span[@class='hide-menu' and normalize-space()='Dashboard']]")
-WebElement dashboardMenuItem_ele;
+    @FindBy(linkText = "Dashboard")
+    WebElement dashboardLink_ele;
+
 
 
 
@@ -77,20 +75,11 @@ WebElement dashboardMenuItem_ele;
         }
     }
 
-//    public String getSuccessLoginDashboard() {
-//        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(60));
-//        wait.until(ExpectedConditions.visibilityOf(dashboardLink_ele));
-//        //waitForWebElementToAppear(successMessage);
-//        return dashboardLink_ele.getText();
-//    }
-public String getSuccessLoginDashboard() {
-    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
-    wait.until(ExpectedConditions.urlContains("/dashboard"));
-    WebElement dashboardLink = wait.until(
-            ExpectedConditions.visibilityOfElementLocated(
-                    By.xpath("//a[@mat-list-item]//span[@class='hide-menu' and normalize-space()='Dashboard']")
-            )
-    );
-    return dashboardLink.getText();
-}
+    public String getSuccessLoginDashboard() {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(60));
+        wait.until(ExpectedConditions.visibilityOf(dashboardLink_ele));
+        //waitForWebElementToAppear(successMessage);
+        return dashboardLink_ele.getText();
+    }
+
 }
