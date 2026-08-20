@@ -1,0 +1,67 @@
+trigger:
+  - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  MAVEN_OPTS: '-Xmx3072m'
+
+steps:
+
+  # ==========================================
+  # 1. Checkout source code
+  # ==========================================
+  - checkout: self
+    displayName: 'Checkout Selenium Automation Code'
+
+
+  # ==========================================
+  # 2. Display Java version
+  # ==========================================
+  - script: |
+      java -version
+      mvn -version
+    displayName: 'Check Java and Maven Versions'
+
+
+  # ==========================================
+  # 3. Run Selenium + TestNG tests
+  # ==========================================
+  - task: Maven@4
+    displayName: 'Run Selenium TestNG Automation'
+    inputs:
+      mavenPomFile: 'pom.xml'
+      goals: 'clean test'
+      javaHomeOption: 'JDKVersion'
+      jdkVersionOption: '1.17'
+      jdkArchitectureOption: 'x64'
+      mavenVersionOption: 'Default'
+      publishJUnitResults: false
+
+
+  # ==========================================
+  # 4. Publish TestNG/Surefire results
+  # ==========================================
+  - task: PublishTestResults@2
+    displayName: 'Publish Selenium Test Results'
+    condition: always()
+    inputs:
+      testResultsFormat: 'JUnit'
+      testResultsFiles: '**/surefire-reports/TEST-*.xml'
+      mergeTestResults: true
+      failTaskOnFailedTests: true
+      failTaskOnMissingResultsFile: true
+      testRunTitle: 'WHMSystem Selenium TestNG Results'
+
+
+  # ==========================================
+  # 5. Publish Allure Results
+  # ==========================================
+  - task: PublishPipelineArtifact@1
+    displayName: 'Publish Allure Results'
+    condition: always()
+    inputs:
+      targetPath: '$(System.DefaultWorkingDirectory)/target/allure-results'
+      artifact: 'allure-results'
+      publishLocation: 'pipeline'
