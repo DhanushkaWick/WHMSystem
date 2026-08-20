@@ -26,6 +26,51 @@ public class BaseTest {
         prop.load(fis);
 
     }
+    public WebDriver initializeDriver() throws IOException {
+
+        String browserName = System.getProperty("browser") != null
+                ? System.getProperty("browser")
+                : prop.getProperty("browser");
+
+        boolean headless = Boolean.parseBoolean(
+                System.getProperty("headless") != null
+                        ? System.getProperty("headless")
+                        : prop.getProperty("headless", "false")
+        );
+
+        if (browserName.equalsIgnoreCase("chrome")) {
+
+            ChromeOptions options = new ChromeOptions();
+
+            WebDriverManager.chromedriver().setup();
+
+            if (headless) {
+                options.addArguments("--headless=new");
+            }
+
+            driver = new ChromeDriver(options);
+
+          //  driver.manage().window().setSize(new Dimension(1440, 900));
+            driver.manage().window().maximize();
+
+        } else if (browserName.equalsIgnoreCase("firefox")) {
+
+            driver = new FirefoxDriver();
+
+        } else if (browserName.equalsIgnoreCase("edge")) {
+
+            driver = new EdgeDriver();
+        }
+
+        driver.manage().timeouts()
+                .implicitlyWait(Duration.ofSeconds(10));
+
+        driver.manage().window().maximize();
+
+        driver.get(prop.getProperty("url"));
+
+        return driver;
+    }
 //    public WebDriver initializeDriver() throws IOException {
 //        // properties class
 //
@@ -56,50 +101,7 @@ public class BaseTest {
 //        return driver;
 //
 //    }
-public WebDriver initializeDriver() throws IOException {
 
-    String browserName = System.getProperty("browser") != null
-            ? System.getProperty("browser")
-            : prop.getProperty("browser");
-
-    boolean headless = Boolean.parseBoolean(
-            System.getProperty("headless") != null
-                    ? System.getProperty("headless")
-                    : prop.getProperty("headless", "false")
-    );
-
-    if (browserName.equalsIgnoreCase("chrome")) {
-
-        ChromeOptions options = new ChromeOptions();
-
-        WebDriverManager.chromedriver().setup();
-
-        if (headless) {
-            options.addArguments("--headless=new");
-        }
-
-        driver = new ChromeDriver(options);
-
-        driver.manage().window().setSize(new Dimension(1440, 900));
-
-    } else if (browserName.equalsIgnoreCase("firefox")) {
-
-        driver = new FirefoxDriver();
-
-    } else if (browserName.equalsIgnoreCase("edge")) {
-
-        driver = new EdgeDriver();
-    }
-
-    driver.manage().timeouts()
-            .implicitlyWait(Duration.ofSeconds(10));
-
-    driver.manage().window().maximize();
-
-    driver.get(prop.getProperty("url"));
-
-    return driver;
-}
 
 
     @AfterClass(alwaysRun = true)

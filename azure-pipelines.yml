@@ -34,6 +34,7 @@ steps:
     inputs:
       mavenPomFile: 'pom.xml'
       goals: 'clean test'
+      options: '-Dbrowser=chrome -Dheadless=false'
       javaHomeOption: 'JDKVersion'
       jdkVersionOption: '1.17'
       jdkArchitectureOption: 'x64'
