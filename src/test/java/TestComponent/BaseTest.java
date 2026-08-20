@@ -100,6 +100,8 @@ public WebDriver initializeDriver() throws IOException {
 
     return driver;
 }
+
+
     @AfterClass(alwaysRun = true)
     public void quitDriver(){
         if (driver != null) {
