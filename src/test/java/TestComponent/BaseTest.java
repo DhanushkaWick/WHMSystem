@@ -26,36 +26,80 @@ public class BaseTest {
         prop.load(fis);
 
     }
-    public WebDriver initializeDriver() throws IOException {
-        // properties class
+//    public WebDriver initializeDriver() throws IOException {
+//        // properties class
+//
+//
+//        String browserName = System.getProperty("browser") != null ? System.getProperty("browser") : prop.getProperty("browser");// browser eke g
+//        if (browserName.contains("chrome")) {
+//            ChromeOptions options = new ChromeOptions();
+//            WebDriverManager.chromedriver().setup();
+//            if (browserName.contains("headless")) {
+//                options.addArguments("headless");
+//            }
+//            driver = new ChromeDriver(options);
+//            driver.manage().window().setSize(new Dimension(1440, 900));//full screen
+//
+//        } else if (browserName.equalsIgnoreCase("firefox")) {
+//            System.setProperty("webdriver.gecko.driver",
+//                    "/Users/rahulshetty//documents//geckodriver");
+//            driver = new FirefoxDriver();
+//            // Firefox
+//        } else if (browserName.equalsIgnoreCase("edge")) {
+//            // Edge
+//            System.setProperty("webdriver.edge.driver", "edge.exe");
+//            driver = new EdgeDriver();
+//        }
+//        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+//        driver.manage().window().maximize();
+//        driver.get(prop.getProperty("url"));
+//        return driver;
+//
+//    }
+public WebDriver initializeDriver() throws IOException {
 
+    String browserName = System.getProperty("browser") != null
+            ? System.getProperty("browser")
+            : prop.getProperty("browser");
 
-        String browserName = System.getProperty("browser") != null ? System.getProperty("browser") : prop.getProperty("browser");// browser eke g
-        if (browserName.contains("chrome")) {
-            ChromeOptions options = new ChromeOptions();
-            WebDriverManager.chromedriver().setup();
-            if (browserName.contains("headless")) {
-                options.addArguments("headless");
-            }
-            driver = new ChromeDriver(options);
-            driver.manage().window().setSize(new Dimension(1440, 900));//full screen
+    boolean headless = Boolean.parseBoolean(
+            System.getProperty("headless") != null
+                    ? System.getProperty("headless")
+                    : prop.getProperty("headless", "false")
+    );
 
-        } else if (browserName.equalsIgnoreCase("firefox")) {
-            System.setProperty("webdriver.gecko.driver",
-                    "/Users/rahulshetty//documents//geckodriver");
-            driver = new FirefoxDriver();
-            // Firefox
-        } else if (browserName.equalsIgnoreCase("edge")) {
-            // Edge
-            System.setProperty("webdriver.edge.driver", "edge.exe");
-            driver = new EdgeDriver();
+    if (browserName.equalsIgnoreCase("chrome")) {
+
+        ChromeOptions options = new ChromeOptions();
+
+        WebDriverManager.chromedriver().setup();
+
+        if (headless) {
+            options.addArguments("--headless=new");
         }
-        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
-        driver.manage().window().maximize();
-        driver.get(prop.getProperty("url"));
-        return driver;
 
+        driver = new ChromeDriver(options);
+
+        driver.manage().window().setSize(new Dimension(1440, 900));
+
+    } else if (browserName.equalsIgnoreCase("firefox")) {
+
+        driver = new FirefoxDriver();
+
+    } else if (browserName.equalsIgnoreCase("edge")) {
+
+        driver = new EdgeDriver();
     }
+
+    driver.manage().timeouts()
+            .implicitlyWait(Duration.ofSeconds(10));
+
+    driver.manage().window().maximize();
+
+    driver.get(prop.getProperty("url"));
+
+    return driver;
+}
     @AfterClass(alwaysRun = true)
     public void quitDriver(){
         if (driver != null) {
