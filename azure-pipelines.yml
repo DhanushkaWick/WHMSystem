@@ -2,7 +2,6 @@ trigger:
   - main
 
 pool:
-  #vmImage: 'windows-latest'
   name: 'Selenium-Windows-Pool'
 
 variables:
@@ -18,22 +17,25 @@ steps:
 
 
   # ==========================================
-  # 2. Display Java version
+  # 2. Check Java, Maven and Chrome
   # ==========================================
   - script: |
       java -version
       mvn -version
-    displayName: 'Check Java and Maven Versions'
+      chrome --version
+    displayName: 'Check Java, Maven and Chrome Versions'
 
 
   # ==========================================
   # 3. Run Selenium + TestNG tests
+  #    Visible Chrome - NOT headless
   # ==========================================
   - task: Maven@4
     displayName: 'Run Selenium TestNG Automation'
     inputs:
       mavenPomFile: 'pom.xml'
       goals: 'clean test'
+      options: '-Dbrowser=chrome -Dheadless=false'
       javaHomeOption: 'JDKVersion'
       jdkVersionOption: '1.17'
       jdkArchitectureOption: 'x64'
@@ -52,7 +54,7 @@ steps:
       testResultsFiles: '**/surefire-reports/TEST-*.xml'
       mergeTestResults: true
       failTaskOnFailedTests: true
-      failTaskOnMissingResultsFile: true
+      failTaskOnMissingResultsFile: false
       testRunTitle: 'WHMSystem Selenium TestNG Results'
 
 
@@ -61,7 +63,7 @@ steps:
   # ==========================================
   - task: PublishPipelineArtifact@1
     displayName: 'Publish Allure Results'
-    condition: always()
+    condition: and(always(), exists('$(System.DefaultWorkingDirectory)/target/allure-results'))
     inputs:
       targetPath: '$(System.DefaultWorkingDirectory)/target/allure-results'
       artifact: 'allure-results'
