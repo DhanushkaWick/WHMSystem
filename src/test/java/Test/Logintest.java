@@ -48,7 +48,7 @@ public class Logintest extends BaseTest {
         Thread.sleep(3000);
     loginPage.handleModal();
         System.out.println("modal hadel");
-        Thread.sleep(3000);
+
         Assert.assertEquals(loginPage.getSuccessLoginDashboard(),"Dashboard");
         System.out.println("mes");
 

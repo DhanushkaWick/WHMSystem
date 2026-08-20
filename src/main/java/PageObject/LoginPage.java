@@ -76,7 +76,7 @@ public class LoginPage extends AbstractComponent {
     }
 
     public String getSuccessLoginDashboard() {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(50));
         wait.until(ExpectedConditions.visibilityOf(dashboardLink_ele));
         //waitForWebElementToAppear(successMessage);
         return dashboardLink_ele.getText();
