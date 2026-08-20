@@ -1,8 +1,78 @@
+#trigger:
+#  - main
+#
+#pool:
+#  name: 'Selenium-Windows-Pool'
+#
+#variables:
+#  MAVEN_OPTS: '-Xmx3072m'
+#
+#steps:
+#
+#  # ==========================================
+#  # 1. Checkout source code
+#  # ==========================================
+#  - checkout: self
+#    displayName: 'Checkout Selenium Automation Code'
+#
+#
+#  # ==========================================
+#  # 2. Check Java, Maven and Chrome
+#  # ==========================================
+#  - script: |
+#      java -version
+#      mvn -version
+#      chrome --version
+#    displayName: 'Check Java, Maven and Chrome Versions'
+#
+#
+#  # ==========================================
+#  # 3. Run Selenium + TestNG tests
+#  #    Visible Chrome - NOT headless
+#  # ==========================================
+#  - task: Maven@4
+#    displayName: 'Run Selenium TestNG Automation'
+#    inputs:
+#      mavenPomFile: 'pom.xml'
+#      goals: 'clean test'
+#      options: '-Dbrowser=chrome -Dheadless=false'
+#      javaHomeOption: 'JDKVersion'
+#      jdkVersionOption: '1.17'
+#      jdkArchitectureOption: 'x64'
+#      mavenVersionOption: 'Default'
+#      publishJUnitResults: false
+#
+#
+#  # ==========================================
+#  # 4. Publish TestNG/Surefire results
+#  # ==========================================
+#  - task: PublishTestResults@2
+#    displayName: 'Publish Selenium Test Results'
+#    condition: always()
+#    inputs:
+#      testResultsFormat: 'JUnit'
+#      testResultsFiles: '**/surefire-reports/TEST-*.xml'
+#      mergeTestResults: true
+#      failTaskOnFailedTests: true
+#      failTaskOnMissingResultsFile: false
+#      testRunTitle: 'WHMSystem Selenium TestNG Results'
+#
+#
+#  # ==========================================
+#  # 5. Publish Allure Results
+#  # ==========================================
+#  - task: PublishPipelineArtifact@1
+#    displayName: 'Publish Allure Results'
+#    condition: and(always(), exists('$(System.DefaultWorkingDirectory)/target/allure-results'))
+#    inputs:
+#      targetPath: '$(System.DefaultWorkingDirectory)/target/allure-results'
+#      artifact: 'allure-results'
+#      publishLocation: 'pipeline'
+
 trigger:
   - main
 
 pool:
-  #vmImage: 'windows-latest'
   name: 'Selenium-Windows-Pool'
 
 variables:
@@ -11,38 +81,77 @@ variables:
 steps:
 
   # ==========================================
-  # 1. Checkout source code
+  # 1. Checkout
   # ==========================================
   - checkout: self
     displayName: 'Checkout Selenium Automation Code'
 
 
   # ==========================================
-  # 2. Display Java version
+  # 2. Check Java / Maven / Chrome
   # ==========================================
   - script: |
+      echo ================================
+      echo JAVA VERSION
+      echo ================================
       java -version
+      
+      echo ================================
+      echo MAVEN VERSION
+      echo ================================
       mvn -version
-    displayName: 'Check Java and Maven Versions'
+      
+      echo ================================
+      echo CHROME VERSION
+      echo ================================
+      chrome --version
+    displayName: 'Check Java Maven Chrome'
 
 
   # ==========================================
-  # 3. Run Selenium + TestNG tests
+  # 3. Run Selenium + TestNG
   # ==========================================
   - task: Maven@4
     displayName: 'Run Selenium TestNG Automation'
     inputs:
       mavenPomFile: 'pom.xml'
+
       goals: 'clean test'
+
+      options: '-Dbrowser=chrome -Dheadless=false'
+
       javaHomeOption: 'JDKVersion'
       jdkVersionOption: '1.17'
       jdkArchitectureOption: 'x64'
+
       mavenVersionOption: 'Default'
+
       publishJUnitResults: false
 
 
   # ==========================================
-  # 4. Publish TestNG/Surefire results
+  # 4. Show Surefire XML
+  # ==========================================
+  - task: PowerShell@2
+    displayName: 'Verify TestNG Results XML'
+    condition: always()
+    inputs:
+      targetType: 'inline'
+      script: |
+        
+        Write-Host "====================================="
+        Write-Host "SUREFIRE TEST RESULTS"
+        Write-Host "====================================="
+        
+        Get-ChildItem `
+          -Path "$(System.DefaultWorkingDirectory)" `
+          -Filter "TEST-*.xml" `
+          -Recurse |
+          Select-Object FullName, Length
+  
+
+  # ==========================================
+  # 5. Publish TestNG Results
   # ==========================================
   - task: PublishTestResults@2
     displayName: 'Publish Selenium Test Results'
@@ -53,11 +162,12 @@ steps:
       mergeTestResults: true
       failTaskOnFailedTests: true
       failTaskOnMissingResultsFile: true
+      publishRunAttachments: true
       testRunTitle: 'WHMSystem Selenium TestNG Results'
 
 
   # ==========================================
-  # 5. Publish Allure Results
+  # 6. Publish Allure
   # ==========================================
   - task: PublishPipelineArtifact@1
     displayName: 'Publish Allure Results'
